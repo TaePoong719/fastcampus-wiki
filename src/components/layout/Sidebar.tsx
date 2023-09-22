@@ -166,6 +166,7 @@ const Sidebar = () => {
                 학습 시간왕
               </Link>
             </li>
+
           </SidebarList>
           <SidebarBottom />
         </Container>
