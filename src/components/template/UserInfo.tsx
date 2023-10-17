@@ -6,6 +6,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { updateProfile } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore"
 import Swal from "sweetalert2";
+import imageCompression from 'browser-image-compression';
 
 const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
   const [isLogout, setIsLogout] = useState(true); // Logout 모드(true) 또는 사진 추가 모드(false)가 가능합니다.
@@ -24,7 +25,12 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
         const imageRef = ref(storage, `userImage/${filename}`);
         try {
           isPending = true;
-          const snapshot = await uploadBytes(imageRef, file);
+          const compressedFile = await imageCompression(file,{
+            maxWidthOrHeight: 150,
+            fileType:"image/webp",
+
+          })
+          const snapshot = await uploadBytes(imageRef, compressedFile);
           const url = await getDownloadURL(snapshot.ref);
           setUserPhotoURL(url);
           await updateProfile(user, {
