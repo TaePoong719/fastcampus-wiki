@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import styled from "styled-components";
 import { User } from "@firebase/auth";
 import { storage, db } from "../../firebase";
@@ -16,8 +16,9 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
   let isPending = false;
   const userClass = Number(localStorage.getItem(user.uid))
 
+  
   // 사진저장버튼 클릭
-  const handlerConfirmImage = async () => {
+  const handlerConfirmImage = useCallback(async () => {
     if (!isPending) {
       if (fileInputRef?.current) {
         const file = fileInputRef.current.files![0];
@@ -55,17 +56,17 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
         }
       }
     }
-  };
+  },[]) ;
 
   // 수정 버튼 클릭
-  const handleEditImage = () => {
+  const handleEditImage = useCallback(() => {
     if (fileInputRef?.current) {
       fileInputRef.current.click();
     }
-  };
+  },[]);
 
   // 파일을 바뀔 경우
-  const handleFileChange = () => {
+  const handleFileChange = useCallback(() => {
     setIsLogout(false);
     let file = null;
     if (fileInputRef?.current) {
@@ -81,7 +82,7 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
         setIsLogout(true);
       }
     }
-  };
+  },[]);
 
   return (
     <Container isborder={isborder}>
@@ -90,7 +91,6 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
         <div className="userInfo__img-edit" onClick={handleEditImage}>
           <img src="/svg/icon/icon-edit.svg" alt="수정버튼" />
         </div>
-        {/* <div>{userClassName}</div> */}
         <FileInput type="file" accept="image/*" ref={fileInputRef} onInput={handleFileChange} />
       </div>
 
