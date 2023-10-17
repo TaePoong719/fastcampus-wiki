@@ -84,7 +84,7 @@ const WikiDetail = () => {
   );
 };
 
-export default WikiDetail;
+export default React.memo(WikiDetail);
 
 const Wiki_edit = styled.div`
   margin-top: 10px;

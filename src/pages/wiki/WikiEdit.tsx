@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -64,6 +64,14 @@ const WikiEdit = () => {
     }
   }, [page]);
 
+  // EditorBox의 content값을 setValue로 가져와줄 함수
+  const updateContent = useCallback(
+    (newContent: string) => {
+      setValue((prev) => ({ ...prev, content: newContent }));
+    },
+    [value.content]
+  );
+
   // title 타이핑 하는 값 받아오기
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue((prev) => ({ ...prev, title: e.target.value }));
@@ -102,7 +110,7 @@ const WikiEdit = () => {
             </div>
           </div>
           <div className="wikiEdit__textContent">
-            <EditorBox setValue={setValue} />
+            <EditorBox updateContent={updateContent} />
           </div>
         </form>
       </div>
