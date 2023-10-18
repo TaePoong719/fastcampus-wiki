@@ -98,7 +98,7 @@ const Comment = () => {
       <CommentEntry>
         <Comment_user>
           <img
-            src={process.env.PUBLIC_URL + `/png/class_${comment.class}.png`}
+            src={process.env.PUBLIC_URL + `/webp/class_${comment.class}.webp`}
           />
           <Comment_user__name>{comment.useName}</Comment_user__name>
 
