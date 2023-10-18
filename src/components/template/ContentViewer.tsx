@@ -12,4 +12,4 @@ function ContentsViewer({ content }: ContentsViewerProps) {
   return <Viewer key={content} initialValue={content || ""} />;
 }
 
-export default ContentsViewer;
+export default React.memo(ContentsViewer);
