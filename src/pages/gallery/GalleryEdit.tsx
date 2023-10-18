@@ -15,6 +15,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "provider/userContext";
 import userData from "./UserData";
 import Swal from "sweetalert2";
+import { useQueryClient } from "@tanstack/react-query";
 
 // 함수 인자 타입 선언
 interface GalleryDetailProps {
@@ -22,6 +23,7 @@ interface GalleryDetailProps {
   setOnEdit: React.Dispatch<React.SetStateAction<boolean>>;
   setGalleryData: React.Dispatch<React.SetStateAction<userData[]>>;
 }
+
 
 const GalleryEdit: React.FC<GalleryDetailProps> = ({
   onEdit,
@@ -32,7 +34,7 @@ const GalleryEdit: React.FC<GalleryDetailProps> = ({
   const quillRef = useRef();
   const user = useContext(AuthContext);
   const usersCollectionRef = collection(db, "gallery");
-
+  const queryClient = useQueryClient();
   // addDoc할 상태관리
   const [originData, setOriginData] = useState({
     category: "",
@@ -115,20 +117,26 @@ const GalleryEdit: React.FC<GalleryDetailProps> = ({
       uid: user?.uid,
       thumbnail: thumbnailUrl,
     });
+    console.log('API호출 : 신규 데이터 올리기');
+    // TODO : 캐시에 추가해야해
 
-    setGalleryData((prevData) => [
-      {
-        category: originData.category,
-        title: originData.title,
-        desc: originData.desc,
-        timestamp: Timestamp.now(),
-        date: printedData,
-        writer: String(user?.displayName),
-        uid: user?.uid,
-        thumbnail: thumbnailUrl,
-      },
-      ...prevData,
-    ]);
+    const addedUserData: userData = {
+      category: originData.category,
+      title: originData.title,
+      desc: originData.desc,
+      timestamp: Timestamp.now(),
+      date: printedData,
+      writer: String(user?.displayName),
+      uid: user?.uid,
+      thumbnail: thumbnailUrl,
+    }
+
+    queryClient.setQueryData<userData[] | undefined>(["galleryData"], (prevData) => {
+      if (prevData) {
+        return [addedUserData, ...prevData];
+      }
+      return [addedUserData];
+    });
 
     // 리스트 경로로 이동
     navigate("/Gallery");
@@ -197,26 +205,53 @@ const GalleryEdit: React.FC<GalleryDetailProps> = ({
         desc: formData.desc,
         thumbnail: editUrl,
       });
+      console.log('API호출 : 데이터 업데이트');
+      // TODO : 캐시에도 업데이트해야해
 
-      setGalleryData((prevData) => {
-        return prevData.map((item) => {
-          if (item.id === id) {
-            return {
-              id: id,
-              category: formData.category,
-              title: formData.title,
-              desc: formData.desc,
-              timestamp: Timestamp.now(),
-              date: printedData,
-              writer: String(user?.displayName),
-              uid: user?.uid,
-              thumbnail: editUrl,
-            };
-          } else {
-            return item;
-          }
-        });
+      // setGalleryData((prevData) => {
+      //   return prevData.map((item) => {
+      //     if (item.id === id) {
+      //       return {
+      //         id: id,
+      //         category: formData.category,
+      //         title: formData.title,
+      //         desc: formData.desc,
+      //         timestamp: Timestamp.now(),
+      //         date: printedData,
+      //         writer: String(user?.displayName),
+      //         uid: user?.uid,
+      //         thumbnail: editUrl,
+      //       };
+      //     } else {
+      //       return item;
+      //     }
+      //   });
+      // });
+
+      queryClient.setQueryData<userData[] | undefined>(["galleryData"], (prevData) => {
+        if (prevData) {
+          return prevData.map((item) => {
+            if (item.id === id) {
+              return {
+                id: id,
+                category: formData.category,
+                title: formData.title,
+                desc: formData.desc,
+                timestamp: Timestamp.now(),
+                date: printedData,
+                writer: String(user?.displayName),
+                uid: user?.uid,
+                thumbnail: editUrl,
+              };
+            } else {
+              return item;
+            }
+          });
+        }
+        return undefined; // prevData가 undefined일 경우 그대로 반환
       });
+      
+
       Swal.fire({
         icon: "success",
         title: "수정 완료했습니다",
@@ -269,7 +304,7 @@ const GalleryEdit: React.FC<GalleryDetailProps> = ({
   };
 
   // 수정된 데이터 상태관리
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<userData>({
     date: "",
     category: "",
     title: "",
@@ -278,23 +313,42 @@ const GalleryEdit: React.FC<GalleryDetailProps> = ({
   });
 
   // 해당 id의 데이터 불러오기
+  // useEffect(() => {
+  //   const fetchUser = async (id: string | undefined) => {
+  //     // ... try, catch 생략
+  //     // const usersCollectionRef = collection(db, "gallery");
+  //     // const userRef = doc(usersCollectionRef, id);
+  //     // const userSnap = await getDoc(userRef);
+  //     console.log('API호출 : 해당 id의 데이터 불러오기');
+
+  //     const cachedData = queryClient.getQueryData<userData[]>(["galleryData"]);
+    
+  //     const data = cachedData?.find((item) => item.id === id);
+  //     // TODO : 이 부분은 getDoc을 쓸 이유가 없지. 이것도 캐시에서 불러오기만 하면 되지
+  //     // if (userSnap.exists()) {
+  //     //   const { category, title, desc, thumbnail, date } = userSnap.data();
+  //     //   setFormData({
+  //     //     category,
+  //     //     title,
+  //     //     desc,
+  //     //     thumbnail,
+  //     //     date,
+  //     //   });
+  //     // }
+  //   };
+  //   if (onEdit && id) {
+  //     fetchUser(id);
+  //   }
+  // }, [onEdit, id]);
+  const fetchUser = async (id: string | undefined) => {
+    const cachedData = queryClient.getQueryData<userData[]>(["galleryData"]);
+    const userData = cachedData?.find((item) => item.id === id);
+    if (userData) {
+      setFormData(userData);
+    }
+  };
+
   useEffect(() => {
-    const fetchUser = async (id: string | undefined) => {
-      // ... try, catch 생략
-      const usersCollectionRef = collection(db, "gallery");
-      const userRef = doc(usersCollectionRef, id);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const { category, title, desc, thumbnail, date } = userSnap.data();
-        setFormData({
-          category,
-          title,
-          desc,
-          thumbnail,
-          date,
-        });
-      }
-    };
     if (onEdit && id) {
       fetchUser(id);
     }
@@ -327,6 +381,7 @@ const GalleryEdit: React.FC<GalleryDetailProps> = ({
       title: e.target.value,
     });
   };
+
 
   return (
     <FormSection>

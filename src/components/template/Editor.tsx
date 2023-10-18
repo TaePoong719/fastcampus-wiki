@@ -3,7 +3,7 @@ import ReactQuill from "react-quill"
 import 'react-quill/dist/quill.snow.css';
 
 interface EditData {
-  value: string,
+  value: string | undefined,
   onChange: (value: string) => void,
   quillRef: React.RefObject<any>
 }
