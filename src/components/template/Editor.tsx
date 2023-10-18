@@ -3,9 +3,10 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
 interface EditData {
-  value: string;
-  onChange: (value: string) => void;
-  quillRef: React.RefObject<any>;
+
+  value: string | undefined,
+  onChange: (value: string) => void,
+  quillRef: React.RefObject<any>
 }
 
 const Editor = ({ value, onChange, quillRef }: EditData) => {
