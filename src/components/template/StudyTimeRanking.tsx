@@ -24,18 +24,17 @@ const StudyTimeRanking = () => {
   );
   const { currentTheme } = useContext(ThemeContext);
   const theme: "dark" | "light" = currentTheme;
-  
 
   const medalSelector = (index: number): string => {
     switch (index) {
       case 0:
-        return process.env.PUBLIC_URL + "/png/1등.png";
+        return process.env.PUBLIC_URL + "/webp/1등.webp";
       case 1:
-        return process.env.PUBLIC_URL + "/png/2등.png";
+        return process.env.PUBLIC_URL + "/webp/2등.webp";
       case 2:
-        return process.env.PUBLIC_URL + "/png/3등.png";
+        return process.env.PUBLIC_URL + "/webp/3등.webp";
       default:
-        return process.env.PUBLIC_URL + "/png/빈사진.png";
+        return process.env.PUBLIC_URL + "/webp/빈사진.webp";
     }
   };
 
@@ -93,7 +92,7 @@ const StudyTimeRanking = () => {
                 </div>
                 <img
                   className="user_image"
-                  src={process.env.PUBLIC_URL + "/png/user_default.png"}
+                  src={process.env.PUBLIC_URL + "/webp/user_default.webp"}
                   alt="프로필"
                 />
                 <div className="userList__nickName">{usersData.nickName}</div>
@@ -128,7 +127,7 @@ const StudyTimeRanking = () => {
                 </div>
                 <img
                   className="user_image"
-                  src={process.env.PUBLIC_URL + "/png/user_default.png"}
+                  src={process.env.PUBLIC_URL + "/webp/user_default.webp"}
                   alt="프로필"
                 />
                 <div className="userList__nickName">{usersData.nickName}</div>

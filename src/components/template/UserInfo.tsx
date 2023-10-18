@@ -95,7 +95,7 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
 
       <div className="userInfo__name-wrap">
         <img 
-          src={process.env.PUBLIC_URL + `/png/class_${userClass}.png`} 
+          src={process.env.PUBLIC_URL + `/webp/class_${userClass}.webp`} 
           alt="유저계급 아이콘" 
           />
         <h1>{user.displayName + "님"}</h1>

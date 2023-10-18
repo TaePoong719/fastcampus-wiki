@@ -28,7 +28,7 @@ const Rank = () => {
     orderBy("studyTime", "desc"),
     limit(100)
   );
-  const defaultImageUrl = process.env.PUBLIC_URL + "/png/class_default.png";
+  const defaultImageUrl = process.env.PUBLIC_URL + "/webp/class_default.webp";
 
   let leftMargin = 200;
   let topMargin = 60;
@@ -80,10 +80,9 @@ const Rank = () => {
         <MobileRankWrapper>
           {users.map((usersData: UsersData, index: number) => (
             <div className="userList" key={usersData.id}>
-
               <img
                 className="user__image"
-                src={process.env.PUBLIC_URL + "/png/user_default.png"}
+                src={process.env.PUBLIC_URL + "/webp/user_default.webp"}
                 alt="프로필"
               />
               <div className="userList__nickName">{usersData.nickName}</div>
@@ -97,7 +96,7 @@ const Rank = () => {
                   src={
                     usersData.class !== undefined && usersData.class !== null
                       ? process.env.PUBLIC_URL +
-                        `/png/class_${usersData.class}.png`
+                        `/webp/class_${usersData.class}.webp`
                       : defaultImageUrl
                   }
                   alt={usersData.class}
@@ -123,13 +122,15 @@ const Rank = () => {
                 <div className={`userBox__${index + 1}`} key={usersData.id}>
                   <img
                     className="crown"
-                    src={process.env.PUBLIC_URL + `/png/user__${index + 1}.png`}
+                    src={
+                      process.env.PUBLIC_URL + `/webp/user__${index + 1}.webp`
+                    }
                     alt="crown"
                   />
                   <div className={`user__${index + 1}`}>
                     <img
                       className="user__image-podium"
-                      src={process.env.PUBLIC_URL + "/png/user_default.png"}
+                      src={process.env.PUBLIC_URL + "/webp/user_default.webp"}
                       alt="프로필"
                     />
                   </div>
@@ -150,7 +151,7 @@ const Rank = () => {
                 <div className="userList__rank">{index + 4}</div>
                 <img
                   className="user__image"
-                  src={process.env.PUBLIC_URL + "/png/user_default.png"}
+                  src={process.env.PUBLIC_URL + "/webp/user_default.webp"}
                   alt="프로필"
                 />
                 <div className="userList__nickName">{usersData.nickName}</div>
@@ -164,7 +165,7 @@ const Rank = () => {
                     src={
                       usersData.class !== undefined && usersData.class !== null
                         ? process.env.PUBLIC_URL +
-                          `/png/class_${usersData.class}.png`
+                          `/webp/class_${usersData.class}.webp`
                         : defaultImageUrl
                     }
                     alt={usersData.class}
