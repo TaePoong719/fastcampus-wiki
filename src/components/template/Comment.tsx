@@ -19,13 +19,22 @@ import CommentAdd from "./CommentAdd";
 //한국 날짜 설정
 dayjs.locale("ko");
 
+interface Comment {
+  id: string;
+  userName: string;
+  comment: string;
+  class: string;
+  updatedAt: string;
+  uid: string;
+}
+
 const Comment = () => {
   const user = useContext(AuthContext);
 
   // 변경된 댓글 내용 관리
-  const [comment, setComment] = useState("dd");
+  const [comment, setComment] = useState("");
 
-  const [commentValue, setCommentValue] = useState<any[]>([]);
+  const [commentValue, setCommentValue] = useState<Comment[]>([]);
 
   useEffect(() => {
     const q = query(collection(db, "comment"), orderBy("updatedAt", "desc"));
@@ -98,7 +107,7 @@ const Comment = () => {
           <img
             src={process.env.PUBLIC_URL + `/webp/class_${comment.class}.webp`}
           />
-          <Comment_user__name>{comment.useName}</Comment_user__name>
+          <Comment_user__name>{comment.userName}</Comment_user__name>
 
           <Comment_user__updateAt>{comment.updatedAt}</Comment_user__updateAt>
         </Comment_user>
@@ -134,7 +143,6 @@ const Comment = () => {
       {/* 댓글 추가 */}
       <CommentAdd />
       {renderComments}
-      <div></div>
     </>
   );
 };
