@@ -112,4 +112,4 @@ const MobileSidebarBottomBox = styled.div`
   }
 `;
 
-export default SidebarBottom;
+export default React.memo(SidebarBottom);

@@ -9,18 +9,11 @@ import "@toast-ui/editor/dist/i18n/ko-kr";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
-interface ValueState {
-  title: string;
-  content: string;
-  updatedAt: string;
-  displayName: string;
+interface updateContentProps {
+  updateContent: (newContent: string) => void;
 }
 
-interface EditorBoxProps {
-  setValue: React.Dispatch<React.SetStateAction<ValueState>>;
-}
-
-const EditorBox = ({ setValue }: EditorBoxProps) => {
+const EditorBox = ({ updateContent }: updateContentProps) => {
   const editorRef = useRef<any>();
 
   //페이지 정보
@@ -41,14 +34,15 @@ const EditorBox = ({ setValue }: EditorBoxProps) => {
       };
       fetchUser(page);
     }
-  }, []);
+  }, [page]);
 
   //변경된 content 값 받아서 setValue에 update
   const onChange = () => {
     const data = editorRef.current.getInstance().getMarkdown();
-    setValue((prev) => ({ ...prev, content: data }));
+    updateContent(data);
   };
 
+  console.log("에디터 박스 렌더링 ");
   return (
     <div className="edit_wrap">
       <Editor
@@ -65,4 +59,4 @@ const EditorBox = ({ setValue }: EditorBoxProps) => {
   );
 };
 
-export default EditorBox;
+export default React.memo(EditorBox);

@@ -15,18 +15,26 @@ import {
 import { db } from "../../firebase";
 import Swal from "sweetalert2";
 import CommentAdd from "./CommentAdd";
-import { IsMobile } from "utils/mediaQuery";
 
 //한국 날짜 설정
 dayjs.locale("ko");
+
+interface Comment {
+  id: string;
+  userName: string;
+  comment: string;
+  class: string;
+  updatedAt: string;
+  uid: string;
+}
 
 const Comment = () => {
   const user = useContext(AuthContext);
 
   // 변경된 댓글 내용 관리
-  const [comment, setComment] = useState("dd");
+  const [comment, setComment] = useState("");
 
-  const [commentValue, setCommentValue] = useState<any[]>([]);
+  const [commentValue, setCommentValue] = useState<Comment[]>([]);
 
   useEffect(() => {
     const q = query(collection(db, "comment"), orderBy("updatedAt", "desc"));
@@ -86,7 +94,6 @@ const Comment = () => {
   const handleUpdate = async (id: string) => {
     await updateDoc(doc(db, "comment", id), {
       comment: comment,
-      // updatedAt: dayjs().format("YYYY.MM.DD HH:mm:ss"),
     });
     setOpen(false);
   };
@@ -100,7 +107,7 @@ const Comment = () => {
           <img
             src={process.env.PUBLIC_URL + `/webp/class_${comment.class}.webp`}
           />
-          <Comment_user__name>{comment.useName}</Comment_user__name>
+          <Comment_user__name>{comment.userName}</Comment_user__name>
 
           <Comment_user__updateAt>{comment.updatedAt}</Comment_user__updateAt>
         </Comment_user>
@@ -136,12 +143,11 @@ const Comment = () => {
       {/* 댓글 추가 */}
       <CommentAdd />
       {renderComments}
-      <div></div>
     </>
   );
 };
 
-export default Comment;
+export default React.memo(Comment);
 
 const Comment_Container = styled.div`
   height: 60px;

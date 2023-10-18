@@ -4,6 +4,8 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import WikiDetail from "./WikiDetail";
 import WikiEdit from "./WikiEdit";
 import { IsMobile } from "utils/mediaQuery";
+import React from "react";
+
 const Wiki = () => {
   let leftMargin = 200;
   let topMargin = 60;
@@ -43,4 +45,4 @@ interface IContainer {
   topmargin: number;
 }
 
-export default Wiki;
+export default React.memo(Wiki);
