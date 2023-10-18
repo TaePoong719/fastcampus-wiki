@@ -15,7 +15,6 @@ import {
 import { db } from "../../firebase";
 import Swal from "sweetalert2";
 import CommentAdd from "./CommentAdd";
-import { IsMobile } from "utils/mediaQuery";
 
 //한국 날짜 설정
 dayjs.locale("ko");
@@ -86,7 +85,6 @@ const Comment = () => {
   const handleUpdate = async (id: string) => {
     await updateDoc(doc(db, "comment", id), {
       comment: comment,
-      // updatedAt: dayjs().format("YYYY.MM.DD HH:mm:ss"),
     });
     setOpen(false);
   };
@@ -141,7 +139,7 @@ const Comment = () => {
   );
 };
 
-export default Comment;
+export default React.memo(Comment);
 
 const Comment_Container = styled.div`
   height: 60px;

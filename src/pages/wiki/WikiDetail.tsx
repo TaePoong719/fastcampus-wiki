@@ -22,6 +22,7 @@ const WikiDetail = () => {
   // firebase에 문서 가져오기
   useEffect(() => {
     if (page) {
+      console.log("firebase 불러오기");
       const fetchUser = async (uid: string) => {
         // ... try, catch 생략
         const userRef = doc(db, "wiki", uid);
