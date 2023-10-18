@@ -29,7 +29,6 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
           const compressedFile = await imageCompression(file,{
             maxWidthOrHeight: 150,
             fileType:"image/webp",
-
           })
           const snapshot = await uploadBytes(imageRef, compressedFile);
           const url = await getDownloadURL(snapshot.ref);
