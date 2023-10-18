@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import styled from "styled-components";
 import { User } from "@firebase/auth";
 import { storage, db } from "../../firebase";
@@ -6,6 +6,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { updateProfile } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore"
 import Swal from "sweetalert2";
+import imageCompression from 'browser-image-compression';
 
 const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
   const [isLogout, setIsLogout] = useState(true); // Logout 모드(true) 또는 사진 추가 모드(false)가 가능합니다.
@@ -15,8 +16,9 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
   let isPending = false;
   const userClass = Number(localStorage.getItem(user.uid))
 
+  
   // 사진저장버튼 클릭
-  const handlerConfirmImage = async () => {
+  const handlerConfirmImage = useCallback(async () => {
     if (!isPending) {
       if (fileInputRef?.current) {
         const file = fileInputRef.current.files![0];
@@ -24,7 +26,12 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
         const imageRef = ref(storage, `userImage/${filename}`);
         try {
           isPending = true;
-          const snapshot = await uploadBytes(imageRef, file);
+          const compressedFile = await imageCompression(file,{
+            maxWidthOrHeight: 150,
+            fileType:"image/webp",
+
+          })
+          const snapshot = await uploadBytes(imageRef, compressedFile);
           const url = await getDownloadURL(snapshot.ref);
           setUserPhotoURL(url);
           await updateProfile(user, {
@@ -49,17 +56,17 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
         }
       }
     }
-  };
+  },[]) ;
 
   // 수정 버튼 클릭
-  const handleEditImage = () => {
+  const handleEditImage = useCallback(() => {
     if (fileInputRef?.current) {
       fileInputRef.current.click();
     }
-  };
+  },[]);
 
   // 파일을 바뀔 경우
-  const handleFileChange = () => {
+  const handleFileChange = useCallback(() => {
     setIsLogout(false);
     let file = null;
     if (fileInputRef?.current) {
@@ -75,7 +82,7 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
         setIsLogout(true);
       }
     }
-  };
+  },[]);
 
   return (
     <Container isborder={isborder}>
@@ -84,7 +91,6 @@ const UserInfo: React.FC<Props> = ({ handlerLogout, user, isborder }) => {
         <div className="userInfo__img-edit" onClick={handleEditImage}>
           <img src="/svg/icon/icon-edit.svg" alt="수정버튼" />
         </div>
-        {/* <div>{userClassName}</div> */}
         <FileInput type="file" accept="image/*" ref={fileInputRef} onInput={handleFileChange} />
       </div>
 
