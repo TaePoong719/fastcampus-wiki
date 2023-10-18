@@ -25,6 +25,7 @@ const GalleryDetail: React.FC<GalleryDetailProps> = ({
   const navigate = useNavigate();
   const user = useContext(AuthContext);
 
+  // 캐시로 데이터 가져오기
   const queryClient = useQueryClient();
   const cachedData = queryClient.getQueryData<userData[]>(["galleryData"]);
 
