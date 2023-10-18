@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useCallback } from "react";
 import { Modal, MobileModal } from "../template/Modal";
 import styled from "styled-components";
 import { Link, useLocation } from "react-router-dom";
@@ -17,7 +17,6 @@ const Header = () => {
   const [pathLink, setPathLink] = useState("");
   const location = useLocation();
   const [displayUserInfo, setDisplayUserInfo] = useState(false);
-
   const [isModalActive, setIsModalActive] = useState(false);
   const [studyStartTime, setStudyStartTime] = useState<number | null>(null);
   const [isStudying, setIsStudying] = useState(false);
@@ -27,17 +26,17 @@ const Header = () => {
   const { currentTheme } = useContext(ThemeContext);
   const theme: "dark" | "light" = currentTheme;
 
-  const handlerLogout = () => {
+  const handlerLogout = useCallback(() => {
     setDisplayUserInfo(false);
     signOut(auth);
     setIsStudying(false);
-  };
+  },[]);
 
-  const openModal = () => {
+  const openModal = useCallback(() => {
     setIsModalActive(true);
-  };
+  },[]);
 
-  const handleIsStudyingChange = (newIsStudying: boolean) => {
+  const handleIsStudyingChange = useCallback((newIsStudying: boolean) => {
     setIsStudying(newIsStudying);
 
     // 버튼 텍스트 업데이트
@@ -46,17 +45,43 @@ const Header = () => {
     } else {
       setModalButtonText("학습 기록");
     }
-  };
+  },[isStudying]);
 
-  const toggleStudyStatus = () => {
+  const toggleStudyStatus = useCallback(() => {
     setIsStudying((prev) => !prev);
-  };
+  },[]);
 
   useEffect(() => {
     setPathLink(location.pathname.split("/")[1]);
   }, [location]);
 
-  const MobileUserInfo = () => {
+  const PageLink = React.memo(() => {
+    return (
+      <>
+        {pageLink.map((link, idx) => {
+          let name = "";
+          if (pathLink === pageLink[idx]) name += "active";
+          return (
+            <li key={pageLink[idx]}>
+              <Link to={`/${link}`}>
+                <h2 className={name}> {pageLink[idx]} </h2>
+              </Link>
+            </li>
+          );
+        })}
+      </>
+    )
+  })
+
+  const Logo = React.memo(()=>{
+    return(
+      <Link to={`/`}>
+        <h1>FASTWIKI</h1>
+      </Link>
+    )
+  })
+
+  const MobileUserInfo = React.memo(() => {
     if (user) {
       return (
         <MobileUserInfoContainer>
@@ -114,136 +139,111 @@ const Header = () => {
         </MobileUserInfoContainer>
       );
     }
-  };
+  });
 
-  // 모바일 헤더
-  if (IsMobile()) {
+  const MobileHeader = () => {
     return (
       <>
-        <MobileContainer>
-          <MobileFirstHeader>
-            <div></div>
-            <Link to={`/`}>
-              <h1>FASTWIKI</h1>
-            </Link>
-            <img
-              onClick={() => {
-                setMobileUserInfo((prev) => !prev);
-              }}
-              className="header__mobile-user"
-              src={process.env.PUBLIC_URL + `/svg/icon_user_${theme}.svg`}
-              alt="유저모양아이콘"
+      <MobileContainer>
+      <MobileFirstHeader>
+        <div/>
+        <Logo/>
+        <img
+          onClick={() => {
+            setMobileUserInfo((prev) => !prev);
+          }}
+          className="header__mobile-user"
+          src={process.env.PUBLIC_URL + `/svg/icon_user_${theme}.svg`}
+          alt="유저모양아이콘"
+        />
+      </MobileFirstHeader>
+      <MobileSecondHeader>
+        <PageLink/>
+        <li>
+          <MobileStyledButton onClick={openModal}>
+            <p>{isStudying ? "기록 중" : "학습 기록"}</p>
+          </MobileStyledButton>
+        </li>
+      </MobileSecondHeader>
+      {isModalActive ? (
+        <MobileModal
+          width="150"
+          height="180"
+          setModal={setIsModalActive}
+          element={
+            <StudyTime
+              isStudying={isStudying}
+              studyStartTime={studyStartTime}
+              onIsStudyingChange={handleIsStudyingChange}
+              toggleStudyStatus={toggleStudyStatus}
+              setStudyStartTime={setStudyStartTime}
             />
-          </MobileFirstHeader>
-          <MobileSecondHeader>
-            {pageLink.map((link, idx) => {
-              let name = "";
-              if (pathLink === pageLink[idx]) name += "active";
-              return (
-                <li key={pageLink[idx]}>
-                  <Link to={`/${link}`}>
-                    <h2 className={name}> {pageLink[idx]} </h2>
-                  </Link>
-                </li>
-              );
-            })}
-            <li>
-              <MobileStyledButton onClick={openModal}>
-                <p>{isStudying ? "기록 중" : "학습 기록"}</p>
-              </MobileStyledButton>
-            </li>
-          </MobileSecondHeader>
-          {isModalActive ? (
-            <MobileModal
-              width="150"
-              height="180"
-              setModal={setIsModalActive}
-              element={
-                <StudyTime
-                  isStudying={isStudying}
-                  studyStartTime={studyStartTime}
-                  onIsStudyingChange={handleIsStudyingChange}
-                  toggleStudyStatus={toggleStudyStatus}
-                  setStudyStartTime={setStudyStartTime}
-                />
-              }
-            />
-          ) : null}
-        </MobileContainer>
-        {mobileUserInfo ? <MobileUserInfo /> : <></>}
-      </>
-    );
-  } else {
-    // 일반 테스크톱 헤더
-    return (
+          }
+        />
+      ) : null}
+    </MobileContainer>
+    {mobileUserInfo ? <MobileUserInfo /> : <></>}
+    </>
+    )
+  }
+
+  const DesktopHeader = () => {
+    return(
       <Container>
         <InnerContainer>
           <li>
-            <Link to={`/`}>
-              <h1>FASTWIKI</h1>
-            </Link>
+            <Logo/>
           </li>
           <ul className="header__link-wrapper">
-            {pageLink.map((link, idx) => {
-              let name = "";
-              if (pathLink === pageLink[idx]) name += "active";
-              return (
-                <li key={pageLink[idx]}>
-                  <Link to={`/${link}`}>
-                    <h2 className={name}> {pageLink[idx]} </h2>
-                  </Link>
-                </li>
-              );
-            })}
-            <li>
-              <StyledButton onClick={openModal}>
-                <p>{isStudying ? "기록 중" : "학습 기록"}</p>
-              </StyledButton>
-            </li>
-            <li>
-              {user?.displayName ? (
-                <>
-                  <div className="header__user-name">
-                    <p
-                      onClick={() => {
-                        setDisplayUserInfo((prev) => !prev);
-                      }}
-                    >
-                      {sliceStr(user.displayName, 7)}님
-                    </p>
-                    <div className="header__user-info">
-                      {displayUserInfo ? (
-                        <UserInfo
-                          handlerLogout={handlerLogout}
-                          user={user}
-                          isborder="true"
-                        />
-                      ) : (
-                        <></>
-                      )}
-                    </div>
+          <PageLink/>
+          <li>
+            <StyledButton onClick={openModal}>
+              <p>{isStudying ? "기록 중" : "학습 기록"}</p>
+            </StyledButton>
+          </li>
+          <li>
+            {user?.displayName ? (
+              <>
+                <div className="header__user-name">
+                  <p
+                    onClick={() => {
+                      setDisplayUserInfo((prev) => !prev);
+                    }}
+                  >
+                    {sliceStr(user.displayName, 7)}님
+                  </p>
+                  <div className="header__user-info">
                     {displayUserInfo ? (
-                      <div
-                        onClick={() => {
-                          setDisplayUserInfo(false);
-                        }}
-                        className="header__user-info-block"
-                      >
-                        {" "}
-                      </div>
+                      <UserInfo
+                        handlerLogout={handlerLogout}
+                        user={user}
+                        isborder="true"
+                      />
                     ) : (
                       <></>
                     )}
                   </div>
-                </>
-              ) : (
-                <Link to={`/login`}>
-                  <h3>로그인</h3>
-                </Link>
-              )}
-            </li>
-            <DarkModeBtn />
-          </ul>
+                  {displayUserInfo ? (
+                    <div
+                      onClick={() => {
+                        setDisplayUserInfo(false);
+                      }}
+                      className="header__user-info-block"
+                    >
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+                </div>
+              </>
+            ) : (
+              <Link to={`/login`}>
+                <h3>로그인</h3>
+              </Link>
+            )}
+          </li>
+          <DarkModeBtn />
+        </ul>
         </InnerContainer>
         {isModalActive && (
           <Modal
@@ -262,6 +262,19 @@ const Header = () => {
           />
         )}
       </Container>
+    )
+  }
+
+
+  // 모바일 헤더
+  if (IsMobile()) {
+    return (
+      <MobileHeader/>
+    );
+  } else {
+    // 일반 테스크톱 헤더
+    return (
+      <DesktopHeader/>
     );
   }
 };

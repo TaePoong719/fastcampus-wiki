@@ -1,5 +1,5 @@
 import GallerySidebar from "components/layout/GallerySiderbar";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import GalleryEdit from "./GalleryEdit";
 import GalleryDetail from "./GalleryDetail";
 import GalleryList from "./GalleryList";
@@ -9,11 +9,12 @@ import { db } from "../../firebase";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import userData from "./UserData";
 import { IsMobile } from "utils/mediaQuery";
+import { useMediaQuery } from "react-responsive";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Gallery = () => {
   const [onEdit, setOnEdit] = useState<boolean>(false);
-  const [galleryData, setGalleryData] = useState<userData[]>([]);
-
+  const [galleryDatas, setGalleryData] = useState<userData[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("all"); // 초기값 설정
   const location = useLocation();
   const Navigate = useNavigate();
@@ -25,24 +26,44 @@ const Gallery = () => {
     leftMargin = 0;
     topMargin = 100;
   }
+
   // 초기값
-  useEffect(() => {
-    const fetchData = async () => {
-      const q = query(collection(db, "gallery"), orderBy("timestamp", "desc"));
-      const data = await getDocs(q);
-      const galleryData: userData[] = data.docs.map((doc) => ({
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const q = query(collection(db, "gallery"), orderBy("timestamp", "desc"));
+  //     const data = await getDocs(q);
+  //     console.log('API호출 : 초기 리스트 데이터 호출');
+  //     const galleryData: userData[] = data.docs.map((doc) => ({
+  //       ...doc.data(),
+  //       id: doc.id,
+  //     }));
+
+  //     setGalleryData(galleryData);
+  //   };
+
+  //   fetchData();
+  // }, []);
+
+  async function fetchGallery(): Promise<userData[]>{
+    const q = query(collection(db, "gallery"), orderBy("timestamp", "desc"));
+    const data = await getDocs(q);
+    const galleryData: userData[] = data.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
-      }));
+    }));
+    console.log('API호출 : 리스트들 호출!')
 
-      setGalleryData(galleryData);
-    };
+    return galleryData || []; // 데이터가 없을 경우 빈 배열 반환
+  }
 
-    fetchData();
-  }, []);
+  const { isLoading, data } = useQuery<userData[]>(["galleryData"], fetchGallery)
+
+
+  const galleryData = data || []; 
+  console.log(galleryData);
 
   // 사이드바 쿼리구현
-  const handleClick = async (category: string) => {
+  const handleClick = (category: string) => {
     // 글 작성시에 메뉴 클릭하면 강제
     const path = location.pathname;
     const galleryPath = "/Gallery/";
@@ -53,26 +74,13 @@ const Gallery = () => {
       Navigate("/Gallery");
     }
 
-    // 카테고리에 따른 데이터 호출
-    let q;
-    if (category === "all") {
-      q = query(collection(db, "gallery"), orderBy("timestamp", "desc"));
-    } else {
-      const cateQuery = query(
-        collection(db, "gallery"),
-        where("category", "==", category)
-      );
-      q = query(cateQuery, orderBy("timestamp", "desc"));
-    }
-
-    const data = await getDocs(q);
-    const galleryData: userData[] = data.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    }));
-    setGalleryData(galleryData);
     setActiveCategory(category);
   };
+
+  const filteredGalleryData = activeCategory === "all"
+    ? galleryData
+    : galleryData.filter(item => item.category === activeCategory);
+
 
   return (
     <>
@@ -86,7 +94,7 @@ const Gallery = () => {
             path=""
             element={
               <GalleryList
-                galleryData={galleryData}
+                galleryData={filteredGalleryData}
                 activeCategory={activeCategory}
               />
             }

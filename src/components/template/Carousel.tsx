@@ -41,7 +41,7 @@ const Carousel: React.FC = () => {
           rel="noreferrer"
         >
           <img
-            src={process.env.PUBLIC_URL + "/svg/banner/fastcampus_banner.svg"}
+            src={process.env.PUBLIC_URL + "/webp/banner/fastcampus_banner.webp"}
             alt="fastcampus_banner"
           />
         </a>
@@ -51,7 +51,7 @@ const Carousel: React.FC = () => {
           rel="noreferrer"
         >
           <img
-            src={process.env.PUBLIC_URL + "/svg/banner/notion_banner.svg"}
+            src={process.env.PUBLIC_URL + "/webp/banner/notion_banner.webp"}
             alt="notion_banner"
           />
         </a>
@@ -61,7 +61,7 @@ const Carousel: React.FC = () => {
           rel="noreferrer"
         >
           <img
-            src={process.env.PUBLIC_URL + "/svg/banner/slack_banner.svg"}
+            src={process.env.PUBLIC_URL + "/webp/banner/slack_banner.webp"}
             alt="slack_banner"
           />
         </a>
@@ -71,7 +71,7 @@ const Carousel: React.FC = () => {
           rel="noreferrer"
         >
           <img
-            src={process.env.PUBLIC_URL + "/svg/banner/zoom_banner.svg"}
+            src={process.env.PUBLIC_URL + "/webp/banner/zoom_banner.webp"}
             alt="zoom_banner"
           />
         </a>
@@ -81,7 +81,7 @@ const Carousel: React.FC = () => {
           rel="noreferrer"
         >
           <img
-            src={process.env.PUBLIC_URL + "/svg/banner/sheet_banner.svg"}
+            src={process.env.PUBLIC_URL + "/webp/banner/sheet_banner.webp"}
             alt="sheet_banner"
           />
         </a>
