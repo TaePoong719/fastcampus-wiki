@@ -6,7 +6,6 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "provider/userContext";
 import userData from "./UserData";
 import Swal from "sweetalert2";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 // 함수 인자 타입 선언
 interface GalleryDetailProps {
@@ -25,33 +24,26 @@ const GalleryDetail: React.FC<GalleryDetailProps> = ({
   const navigate = useNavigate();
   const user = useContext(AuthContext);
 
-  // 캐시로 데이터 가져오기
-  const queryClient = useQueryClient();
-  const cachedData = queryClient.getQueryData<userData[]>(["galleryData"]);
-
-  const data: userData | undefined = cachedData?.find((item) => item.id === id);
-
-  // const [users, setUsers] = useState<userData[]>([]);
+  const [users, setUsers] = useState<userData[]>([]);
+  const usersCollectionRef = collection(db, "gallery");
 
   // 데이터 가져오기
-  // useEffect(() => {
-  //   const getUsers = async () => {
-  //     const data = await getDocs(usersCollectionRef);
-  //     console.log('API호출 : 상세 데이터 호출');
-  //     const user = data.docs.find((doc) => doc.id === id);
-  //     if (user) {
-  //       setUsers([{ ...user.data(), id: user.id }]);
-  //     }
-  //   };
-  //   getUsers();
-  // }, []);
+  useEffect(() => {
+    const getUsers = async () => {
+      const data = await getDocs(usersCollectionRef);
+      console.log('API호출 : 상세 데이터 불러오기')
+      const user = data.docs.find((doc) => doc.id === id);
+      if (user) {
+        setUsers([{ ...user.data(), id: user.id }]);
+      }
+    };
+    getUsers();
+  }, []);
 
   // 데이터 삭제하기
   const deleteGallery = async (id: string | undefined) => {
-
     if (user) {
-      // const userToDelete = users.find((user) => user.id === id);
-      const userToDelete = data;
+      const userToDelete = users.find((user) => user.id === id);
       if (userToDelete && user.uid === userToDelete.uid) {
         // 삭제 여부 확인
 
@@ -68,12 +60,9 @@ const GalleryDetail: React.FC<GalleryDetailProps> = ({
             const collectionRef = collection(db, "gallery");
             const userDoc = doc(collectionRef, id);
             deleteDoc(userDoc);
-            console.log('API호출 : id의 데이터 삭제');
 
-            // 캐시에서 데이터 삭제
-            queryClient?.setQueryData<userData[]>(
-              ["galleryData"],
-              (prevData) => prevData?.filter((item) => item.id !== id)
+            setGalleryData((prevData) =>
+              prevData.filter((item) => item.id !== id)
             );
 
             Swal.fire({
@@ -118,9 +107,8 @@ const GalleryDetail: React.FC<GalleryDetailProps> = ({
   // 데이터 수정하기
   const editGallery = async (id: string | undefined) => {
     if (user) {
-      // const userToEdit = data.find((user) => user.id === id);
-      const userToDelete = data;
-      if (userToDelete && user.uid === userToDelete.uid) {
+      const userToEdit = users.find((user) => user.id === id);
+      if (userToEdit && user.uid === userToEdit.uid) {
         setOnEdit(true);
         navigate(`/Gallery/edit/${id}`);
       } else {
@@ -147,28 +135,32 @@ const GalleryDetail: React.FC<GalleryDetailProps> = ({
     }
   };
 
-
   return (
     <>
-      {data ? (      
-          <div key={data.id} style={{ margin: "30px" }}>
+      {users.map((user) => {
+        return (
+          <div key={user.id} style={{ margin: "30px" }}>
             <GalleryHeader>
               <GalleryDesc>
-                <div className="Gallery__title">{data.title}</div>
+                <div className="Gallery__title"> {user.title}</div>
                 <div className="Gallery__desc">
-                  <span>{data.date}</span>
-                  <span>{data.writer}</span>
+                  <span>{user.date}</span>
+                  <span>{user.writer}</span>
                 </div>
               </GalleryDesc>
               <div className="Gallery__btn-wrap">
                 <button
-                  onClick={() => deleteGallery(data.id)}
+                  onClick={() => {
+                    deleteGallery(user.id);
+                  }}
                   className="Gallery__btn delete"
                 >
                   삭제
                 </button>
                 <button
-                  onClick={() => editGallery(data.id)}
+                  onClick={() => {
+                    editGallery(user.id);
+                  }}
                   className="Gallery__btn"
                 >
                   수정
@@ -176,18 +168,17 @@ const GalleryDetail: React.FC<GalleryDetailProps> = ({
               </div>
             </GalleryHeader>
             <GalleryThumb>
-              <img src={data.thumbnail} alt="썸네일" />
+              <img src={user.thumbnail} alt="썸네일" />
             </GalleryThumb>
             <GalleryEditor>
-              {data.desc ? (
-                <div dangerouslySetInnerHTML={{ __html: data.desc }}></div>
+              {user.desc ? (
+                <div dangerouslySetInnerHTML={{ __html: user.desc }}></div>
               ) : null}
             </GalleryEditor>
           </div>
-        ) : (
-        null
-      )}
-  
+        );
+      })}
+
       <GalleryBtn>
         <Link to="/Gallery">
           <button>목록으로</button>
@@ -195,8 +186,6 @@ const GalleryDetail: React.FC<GalleryDetailProps> = ({
       </GalleryBtn>
     </>
   );
-  
-
 };
 
 const GalleryHeader = styled.div`
