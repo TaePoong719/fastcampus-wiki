@@ -1,12 +1,12 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { db } from "../../firebase";
 import { IsMobile } from "utils/mediaQuery";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import Sidebar from "components/layout/Sidebar";
-import Comment from "components/template/Comment";
-import SidebarBottom from "../../components/layout/SidebarBottom";
+
+const Comment = lazy(() => import("components/template/Comment"));
 
 interface UsersData {
   id: string;
@@ -108,7 +108,9 @@ const Rank = () => {
             </div>
           ))}
         </MobileRankWrapper>
-        <Comment />
+        <Suspense fallback={<div>로딩 중...</div>}>
+          <Comment />
+        </Suspense>
       </Container>
     );
   } else {
@@ -177,7 +179,9 @@ const Rank = () => {
               </div>
             ))}
           </RankWrapper>
-          <Comment />
+          <Suspense fallback={<div>로딩 중...</div>}>
+            <Comment />
+          </Suspense>
         </Container>
       </>
     );

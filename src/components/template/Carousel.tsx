@@ -53,6 +53,7 @@ const Carousel: React.FC = () => {
           <img
             src={process.env.PUBLIC_URL + "/webp/banner/notion_banner.webp"}
             alt="notion_banner"
+            loading="lazy"
           />
         </a>
         <a
@@ -63,6 +64,7 @@ const Carousel: React.FC = () => {
           <img
             src={process.env.PUBLIC_URL + "/webp/banner/slack_banner.webp"}
             alt="slack_banner"
+            loading="lazy"
           />
         </a>
         <a
@@ -73,6 +75,7 @@ const Carousel: React.FC = () => {
           <img
             src={process.env.PUBLIC_URL + "/webp/banner/zoom_banner.webp"}
             alt="zoom_banner"
+            loading="lazy"
           />
         </a>
         <a
@@ -83,6 +86,7 @@ const Carousel: React.FC = () => {
           <img
             src={process.env.PUBLIC_URL + "/webp/banner/sheet_banner.webp"}
             alt="sheet_banner"
+            loading="lazy"
           />
         </a>
       </Slider>
